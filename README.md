@@ -15,6 +15,6 @@ This script subscribes to the relevant mqtt topic on the broker.  When it receiv
 This is an event script using a keyword as the trigger rather than an object.  For example, MQTT_Grp.
 
 ## Configuration
-* For each C-Bus object you wish to publish to the MQTT broker, simply add the above keyword into the objects keywords list.
+* For each C-Bus object you wish to publish to the MQTT broker, simply add the above keyword 'MQTT_Grp' into the objects keywords list.
 * Set up each resident script with the correct connection details for your MQTT broker.
 
