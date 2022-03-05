@@ -1,6 +1,6 @@
 -- A resident script to run on a Clipsal 5500SHAC to push Cbus events to MQTT
 -- Tested with 5500SHAC firmware v1.6
--- Install this script as a resident script with a sleep interval of 5 seconds
+-- Install this script as a resident script with a sleep interval of 0 seconds
 
 
 -- **********************************************************************
@@ -14,9 +14,9 @@ udp_host = '127.0.0.1'
 udp_port = 5432
 
 
-mqtt_broker = '10.1.1.50'
-mqtt_username = 'username'
-mqtt_password = 'password'
+mqtt_broker = '<ip address>'
+mqtt_username = '<username>'
+mqtt_password = '<password>'
 mqtt_userid = 'CBUS2MQTT'
 
 mqtt_lwt_topic = 'shac/cbus2ha/lwt'
@@ -124,29 +124,23 @@ client:loop_start()
 while true do
 	cmd = server:receive()
 	if cmd then
-        log(string.format('CBUS2MQTT - UDP Msg Recvd: %s', cmd))
+      log(string.format('CBUS2MQTT - UDP Msg Recvd: %s', cmd))
 
     	parts = string.split(cmd, "/")
     	network = 254
     	app = tonumber(parts[2])
         
         if (app == 228) then
-            --log(string.format('Measurement Message: %s', cmd))
             device_id = tonumber(parts[3])
             channel_id = tonumber(parts[4])
             value = tonumber(parts[5])
-
             mqtt_msg = string.format('%s%u/%u/%u/%u', mqtt_publish_topic, network, app, device_id, channel_id)
-            --log(mqtt_msg)
             client:publish(mqtt_msg .. "/measurement", value, 1, false)
 
         elseif (app == 203) then	-- Enable Control
             group = tonumber(parts[3])
             level = tonumber(parts[4])
             state = (level ~= 0) and "ON" or "OFF"
-            --log("CBUS2MQTT - Publish: " .. mqtt_publish_topic .. network .. "/" .. app .. "/" .. group .. "/state " .. state)
-            --log("CBUS2MQTT - Publish: " .. mqtt_publish_topic .. network .. "/" .. app .. "/" .. group .. "/level " .. level)
-
             client:publish(mqtt_publish_topic .. network .. "/" .. app .. "/" .. group .. "/state", state, 1, false)
             client:publish(mqtt_publish_topic .. network .. "/" .. app .. "/" .. group .. "/level", level, 1, false)
 
@@ -155,16 +149,24 @@ while true do
             level = tonumber(parts[4])
 
             mqtt_msg = string.format('%s%u/%u/%u/level', mqtt_publish_topic, network, app, group)
-            --log(mqtt_msg, level)
+            log(mqtt_msg, level)
             client:publish(mqtt_msg, level, 1, false)
+            
+        elseif (app == 255) then	-- Unit Parameters
+      
+      			log(cmd)
+      
+            device = tonumber(parts[3])
+            channel = tonumber(parts[4])
+						value = tonumber(parts[5])
+            mqtt_msg = string.format('%s%u/%u/%u/%u/value', mqtt_publish_topic, network, app, device, channel)
+            log(mqtt_msg)
+      			client:publish(mqtt_msg, value, 1, false)
             
         else
             group = tonumber(parts[3])
             level = tonumber(parts[4])
             state = (level ~= 0) and "ON" or "OFF"
-            --log("CBUS2MQTT - Publish: " .. mqtt_publish_topic .. network .. "/" .. app .. "/" .. group .. "/state " .. state)
-            --log("CBUS2MQTT - Publish: " .. mqtt_publish_topic .. network .. "/" .. app .. "/" .. group .. "/level " .. level)
-
             client:publish(mqtt_publish_topic .. network .. "/" .. app .. "/" .. group .. "/state", state, 1, false)
             client:publish(mqtt_publish_topic .. network .. "/" .. app .. "/" .. group .. "/level", level, 1, false)
         end

@@ -2,7 +2,7 @@
 
 -- Tested with 5500SHAC firmware v1.6
 
--- Install this script as a resident script with a sleep interval of 5 seconds
+-- Install this script as a resident script with a sleep interval of 0 seconds
 
 -- **********************************************************************
 -- MOSQUITTO DOCUMENTATION
@@ -11,9 +11,9 @@
 
 
 -- *************  Broker Connection Configuration  *******************
-mqtt_broker = '10.1.1.50'
-mqtt_username = 'username'
-mqtt_password = 'password'
+mqtt_broker = '<ip address>'
+mqtt_username = '<username>'
+mqtt_password = '<password>'
 mqtt_userid = 'MQTT2CBUS'
 
 
@@ -185,4 +185,3 @@ client:will_set (mqtt_lwt_topic, mqtt_lwt_offline, 1, true);
 ConnectToBroker(mqtt_broker)
 
 client:loop_forever()
-
